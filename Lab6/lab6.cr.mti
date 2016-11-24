@@ -1,0 +1,23 @@
+{W:/Digital Systems/Labs/Lab6/input.v} {1 {vlog -work work -stats=none {W:/Digital Systems/Labs/Lab6/input.v}
+Model Technology ModelSim PE Student Edition vlog 10.4a Compiler 2015.03 Apr  7 2015
+-- Compiling module synchSP
+-- Compiling module debouncer
+-- Compiling module singlePulse
+-- Compiling module debounce_divider
+
+Top level modules:
+	synchSP
+
+} {} {}} {W:/Digital Systems/Labs/Lab6/sevenSeg.v} {1 {vlog -work work -stats=none {W:/Digital Systems/Labs/Lab6/sevenSeg.v}
+Model Technology ModelSim PE Student Edition vlog 10.4a Compiler 2015.03 Apr  7 2015
+-- Compiling module sevenSeg2
+-- Compiling module twoHexSeven
+-- Compiling module hexSeven
+-- Compiling module sevenSegClock
+
+Top level modules:
+	sevenSeg2
+	twoHexSeven
+	sevenSegClock
+
+} {} {}}

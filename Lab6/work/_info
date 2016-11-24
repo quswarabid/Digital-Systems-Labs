@@ -1,0 +1,247 @@
+m255
+K4
+z2
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+dC:/Modeltech_pe_edu_10.4a/examples
+vcontroller
+Z0 !s110 1478811981
+!i10b 1
+!s100 GzQBAdnDP@_[kW1jD4WBg3
+I@o[=eOz?9kYh@iKSRi2d13
+Z1 VDg1SIo80bB@j0V0VzS_@n1
+Z2 dW:/Digital Systems/Labs/Lab6
+Z3 w1478810987
+Z4 8W:/Digital Systems/Labs/Lab6/lab6.v
+Z5 FW:/Digital Systems/Labs/Lab6/lab6.v
+Z6 L0 44
+Z7 OP;L;10.4a;61
+r1
+!s85 0
+31
+Z8 !s108 1478811981.000000
+Z9 !s107 W:/Digital Systems/Labs/Lab6/lab6.v|
+Z10 !s90 -reportprogress|300|-work|work|-stats=none|W:/Digital Systems/Labs/Lab6/lab6.v|
+!s101 -O0
+!i113 1
+Z11 o-work work -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact -O0
+vdebounce_divider
+Z12 !s110 1478730265
+!i10b 1
+!s100 gKVb?NPfL<e@Oo_eXN3G70
+Ikk[Fc?_i:gDc2<9h=A;8]1
+R1
+R2
+Z13 w1478729163
+Z14 8W:/Digital Systems/Labs/Lab6/input.v
+Z15 FW:/Digital Systems/Labs/Lab6/input.v
+L0 36
+R7
+r1
+!s85 0
+31
+Z16 !s108 1478730264.000000
+Z17 !s107 W:/Digital Systems/Labs/Lab6/input.v|
+Z18 !s90 -reportprogress|300|-work|work|-stats=none|W:/Digital Systems/Labs/Lab6/input.v|
+!s101 -O0
+!i113 1
+R11
+vdebouncer
+R12
+!i10b 1
+!s100 SmPg;=CE5<cQ@j`^l97e31
+IzeH6_29Y7l`K_;;08o2?`3
+R1
+R2
+R13
+R14
+R15
+L0 12
+R7
+r1
+!s85 0
+31
+R16
+R17
+R18
+!s101 -O0
+!i113 1
+R11
+vhexSeven
+Z19 !s110 1478730264
+!i10b 1
+!s100 fLF2Ge<YUS934:Hi9gcPh3
+I07LO@]FRS?OJ]?GX0iWM^3
+R1
+R2
+Z20 w1478729122
+Z21 8W:/Digital Systems/Labs/Lab6/sevenSeg.v
+Z22 FW:/Digital Systems/Labs/Lab6/sevenSeg.v
+R6
+R7
+r1
+!s85 0
+31
+Z23 !s108 1478730263.000000
+Z24 !s107 W:/Digital Systems/Labs/Lab6/sevenSeg.v|
+Z25 !s90 -reportprogress|300|-work|work|-stats=none|W:/Digital Systems/Labs/Lab6/sevenSeg.v|
+!s101 -O0
+!i113 1
+R11
+nhex@seven
+vmemory
+R0
+!i10b 1
+!s100 BlV4[ROVT<7P7mZh5T:R03
+IC?bB@YCl@VecC>KGVVWP12
+R1
+R2
+R3
+R4
+R5
+L0 222
+R7
+r1
+!s85 0
+31
+R8
+R9
+R10
+!s101 -O0
+!i113 1
+R11
+vsevenSeg2
+!s110 1478730263
+!i10b 1
+!s100 A_2;o?L3Z5HiW2O5]J^4U1
+IoJid3XGQkJo;bV2g[z8GG1
+R1
+R2
+R20
+R21
+R22
+L0 1
+R7
+r1
+!s85 0
+31
+R23
+R24
+R25
+!s101 -O0
+!i113 1
+R11
+nseven@seg2
+vsevenSegClock
+R19
+!i10b 1
+!s100 =OW=ER9=3QNU4Wf8Ud5FW1
+Ic>?Z_Jl=G1DANMnQ?D]hK3
+R1
+R2
+R20
+R21
+R22
+L0 71
+R7
+r1
+!s85 0
+31
+R23
+R24
+R25
+!s101 -O0
+!i113 1
+R11
+nseven@seg@clock
+vsinglePulse
+R12
+!i10b 1
+!s100 gHIBMjg=W5Q0`XLQg2i=13
+IJh_@0MAFMN:ij0;XXl2W?2
+R1
+R2
+R13
+R14
+R15
+L0 24
+R7
+r1
+!s85 0
+31
+R16
+R17
+R18
+!s101 -O0
+!i113 1
+R11
+nsingle@pulse
+vsynchSP
+R12
+!i10b 1
+!s100 EF>K@R8VR9OTWN`OCz]1P0
+I5m:L@3Lb6ULY@`jB:gfVP2
+R1
+R2
+R13
+R14
+R15
+L0 1
+R7
+r1
+!s85 0
+31
+R16
+R17
+R18
+!s101 -O0
+!i113 1
+R11
+nsynch@s@p
+vtop
+R0
+!i10b 1
+!s100 i6ia1mJY?16bjUGd;6lU_0
+I[R`DgKWi=18<^7RnQ:<=?1
+R1
+R2
+R3
+R4
+R5
+L0 1
+R7
+r1
+!s85 0
+31
+R8
+R9
+R10
+!s101 -O0
+!i113 1
+R11
+vtwoHexSeven
+R19
+!i10b 1
+!s100 23QZHGfcIbS0n^NV4A:a41
+IUS>E:I6??fKOD<J@fPK7X0
+R1
+R2
+R20
+R21
+R22
+L0 32
+R7
+r1
+!s85 0
+31
+R23
+R24
+R25
+!s101 -O0
+!i113 1
+R11
+ntwo@hex@seven

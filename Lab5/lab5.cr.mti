@@ -1,0 +1,22 @@
+{W:/Digital Systems/Labs/Lab5/Divider.v} {1 {vlog -work work -stats=none {W:/Digital Systems/Labs/Lab5/Divider.v}
+Model Technology ModelSim PE Student Edition vlog 10.4a Compiler 2015.03 Apr  7 2015
+-- Compiling module oneHertzClk
+-- Compiling module tenHertzClk
+-- Compiling module sevenSegClock
+
+Top level modules:
+	oneHertzClk
+	tenHertzClk
+	sevenSegClock
+
+} {} {}} {W:/Digital Systems/Labs/Lab5/sevenSeg.v} {1 {vlog -work work -stats=none {W:/Digital Systems/Labs/Lab5/sevenSeg.v}
+Model Technology ModelSim PE Student Edition vlog 10.4a Compiler 2015.03 Apr  7 2015
+-- Compiling module sevenSeg2
+-- Compiling module twoHexSeven
+-- Compiling module hexSeven
+
+Top level modules:
+	sevenSeg2
+	twoHexSeven
+
+} {} {}}
