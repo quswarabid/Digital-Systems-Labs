@@ -159,6 +159,14 @@ module MIPS (CLK, RST, CS, WE, ADDR, Mem_Bus);
   parameter srl = 6'b000010;
   parameter sll = 6'b000000;
   parameter jr = 6'b001000;
+  parameter mult = 6'b011000;
+  parameter mfhi = 6'b010000;
+  parameter mflo = 6'b010010;
+  parameter add8 = 6'b101101;
+  parameter rbit = 6'b101111;
+  parameter rev = 6'b110000;
+  parameter sadd = 6'b110001;
+  parameter ssub = 6'b110010;
 
   //non-special instructions, values of opcodes:
   parameter addi = 6'b001000;
@@ -169,6 +177,8 @@ module MIPS (CLK, RST, CS, WE, ADDR, Mem_Bus);
   parameter beq = 6'b000100;
   parameter bne = 6'b000101;
   parameter j = 6'b000010;
+  parameter jal = 6'b000011;
+  parameter lui = 6'b001111;
 
   //instruction format
   parameter R = 2'd0;
@@ -186,10 +196,11 @@ module MIPS (CLK, RST, CS, WE, ADDR, Mem_Bus);
   reg fetchDorI;
   wire [4:0] dr;
   reg [2:0] state, nstate;
+  reg [31:0] hi,lo;
 
   //combinational
   assign imm_ext = (instr[15] == 1)? {16'hFFFF, instr[15:0]} : {16'h0000, instr[15:0]};//Sign extend immediate field
-  assign dr = (format == R)? instr[15:11] : instr[20:16]; //Destination Register MUX (MUX1)
+  assign dr = (`opcode == jal) ? 5'd31 : ((format == R)? instr[15:11] : instr[20:16]); //Destination Register MUX (MUX1)
   assign alu_in_A = readreg1;
   assign alu_in_B = (reg_or_imm_save)? imm_ext : readreg2; //ALU MUX (MUX2)
   assign reg_in = (alu_or_mem_save)? Mem_Bus : alu_result_save; //Data MUX
@@ -241,6 +252,8 @@ module MIPS (CLK, RST, CS, WE, ADDR, Mem_Bus);
           end
           else if (`opcode == andi) op = and1;
           else if (`opcode == ori) op = or1;
+		  else if (`opcode == jal) op = jal;
+		  else if (`opcode == lui) op = lui;
         end
       end
       2: begin //execute
@@ -262,10 +275,14 @@ module MIPS (CLK, RST, CS, WE, ADDR, Mem_Bus);
           npc = alu_in_A[6:0];
           nstate = 3'd0;
         end
-      end
+		else if (opsave == jal) begin
+			npc = instr[7:0];
+			alu_result = pc + 7'd1;
+		end
+		else if (opsave == lui) alu_result = {instr[15:0] << 16 , 16'b0000000000000000};
       3: begin //prepare to write to mem
         nstate = 3'd0;
-        if ((format == R)||(`opcode == addi)||(`opcode == andi)||(`opcode == ori)) regw = 1;
+        if ((format == R)||(`opcode == addi)||(`opcode == andi)||(`opcode == ori)||(`opcode == jal)||(`opcode == lui)) regw = 1;
         else if (`opcode == sw) begin
           CS = 1;
           WE = 1;
