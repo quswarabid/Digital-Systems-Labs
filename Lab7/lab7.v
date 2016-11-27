@@ -200,7 +200,7 @@ module MIPS (CLK, RST, CS, WE, ADDR, Mem_Bus);
 
   //combinational
   assign imm_ext = (instr[15] == 1)? {16'hFFFF, instr[15:0]} : {16'h0000, instr[15:0]};//Sign extend immediate field
-  assign dr = (`opcode == jal) ? 5'd31 : ((format == R)? instr[15:11] : instr[20:16]); //Destination Register MUX (MUX1)
+  assign dr = (`opcode == jal) ? 5'd31 : (((`opcode == rbit) || (`opcode == rev))? instru[25:21]:((format == R)? instr[15:11] : instr[20:16])); //Destination Register MUX (MUX1)
   assign alu_in_A = readreg1;
   assign alu_in_B = (reg_or_imm_save)? imm_ext : readreg2; //ALU MUX (MUX2)
   assign reg_in = (alu_or_mem_save)? Mem_Bus : alu_result_save; //Data MUX
@@ -256,7 +256,7 @@ module MIPS (CLK, RST, CS, WE, ADDR, Mem_Bus);
 		  else if (`opcode == lui) op = lui;
         end
       end
-      2: begin //execute
+      2: begin //execute //dont know how to do mult
         nstate = 3'd3;
         if (opsave == and1) alu_result = alu_in_A & alu_in_B;
         else if (opsave == or1) alu_result = alu_in_A | alu_in_B;
@@ -280,9 +280,59 @@ module MIPS (CLK, RST, CS, WE, ADDR, Mem_Bus);
 			alu_result = pc + 7'd1;
 		end
 		else if (opsave == lui) alu_result = {instr[15:0] << 16 , 16'b0000000000000000};
+		else if (opsave == mfhi) alu_result = hi;
+		else if (opsave == mflo) alu_result = lo;
+		else if (opsave == add8) begin
+			alu_result[31:24] <= alu_in_A[31:24] + alu_in_B[31:24];
+			alu_result[23:16] <= alu_in_A[23:16] + alu_in_B[23:16];
+			alu_result[15:8] <= alu_in_A[15:8] + alu_in_B[15:8];
+			alu_result[7:0] <= alu_in_A[7:0] + alu_in_B[7:0];
+		end
+		else if (opsave == rbit) begin
+			alu_result[31] <= alu_in_B[0];
+			alu_result[30] <= alu_in_B[1];
+			alu_result[29] <= alu_in_B[2];
+			alu_result[28] <= alu_in_B[3];
+			alu_result[27] <= alu_in_B[4];
+			alu_result[26] <= alu_in_B[5];
+			alu_result[25] <= alu_in_B[6];
+			alu_result[24] <= alu_in_B[7];
+			alu_result[23] <= alu_in_B[8];
+			alu_result[22] <= alu_in_B[9];
+			alu_result[21] <= alu_in_B[10];
+			alu_result[20] <= alu_in_B[11];
+			alu_result[19] <= alu_in_B[12];
+			alu_result[18] <= alu_in_B[13];
+			alu_result[17] <= alu_in_B[14];
+			alu_result[16] <= alu_in_B[15];
+			alu_result[15] <= alu_in_B[16];
+			alu_result[14] <= alu_in_B[17];
+			alu_result[13] <= alu_in_B[18];
+			alu_result[12] <= alu_in_B[19];
+			alu_result[11] <= alu_in_B[20];
+			alu_result[10] <= alu_in_B[21];
+			alu_result[9] <= alu_in_B[22];
+			alu_result[8] <= alu_in_B[23];
+			alu_result[7] <= alu_in_B[24];
+			alu_result[6] <= alu_in_B[25];
+			alu_result[5] <= alu_in_B[26];
+			alu_result[4] <= alu_in_B[27];
+			alu_result[3] <= alu_in_B[28];
+			alu_result[2] <= alu_in_B[29];
+			alu_result[1] <= alu_in_B[30];
+			alu_result[0] <= alu_in_B[31];
+		end
+		else if (opsave == rev) begin
+			alu_result[31:24] <= alu_in_B[7:0];
+			alu_result[23:16] <= alu_in_B[15:8];
+			alu_result[15:8] <= alu_in_B[23:16];
+			alu_result[7:0] <= alu_in_B[31:24];
+		end
+		else if (opsave == sadd) alu_result = ((alu_in_A + alu_in_B) > 32'hffffffff) ? 32'hffffffff : (alu_in_A + alu_in_B);
+		else if (opsave == ssub) alu_result = ((alu_in_A - alu_in_B) < 32'd0) ? 32'd0 : (alu_in_A - alu_in_B);
       3: begin //prepare to write to mem
         nstate = 3'd0;
-        if ((format == R)||(`opcode == addi)||(`opcode == andi)||(`opcode == ori)||(`opcode == jal)||(`opcode == lui)) regw = 1;
+        if (((format == R)&&(`f_code != mult))||(`opcode == addi)||(`opcode == andi)||(`opcode == ori)||(`opcode == jal)||(`opcode == lui)) regw = 1;
         else if (`opcode == sw) begin
           CS = 1;
           WE = 1;
