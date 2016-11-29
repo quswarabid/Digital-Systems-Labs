@@ -1,9 +1,9 @@
-module topB(CLK, sw, btn, SevenOut, Digit);
+module topB(CLK, sw, btn, reg_out, SevenOut, Digit);
   // Will need to be modified to add functionality
   input CLK;
   input [2:0] sw;
   input [1:0] btn;
-
+  output wire [7:0] reg_out;
   output wire [6:0] SevenOut;
 	output wire [3:0] Digit;
 
@@ -13,7 +13,7 @@ module topB(CLK, sw, btn, SevenOut, Digit);
   wire [6:0] Seven0, Seven1, Seven2, Seven3;
   wire [15:0] fourSeven;
 
-  MIPS CPU(CLK, RST, CS, WE, ADDR, Mem_Bus);
+  MIPS CPU(CLK, RST, btn, CS, WE, ADDR, Mem_Bus, reg_out);
   Memory MEM(CS, WE, CLK, ADDR, Mem_Bus);
 
   synchSP buttonL(clk, btn[1], btnL);
@@ -64,15 +64,17 @@ endmodule
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-module REG(CLK, RegW, DR, SR1, SR2, Reg_In, ReadReg1, ReadReg2);
+module REG(CLK, RegW, DR, SR1, SR2, Reg_In, reg_select, ReadReg1, ReadReg2, reg_out);
   input CLK;
   input RegW;
   input [4:0] DR;
   input [4:0] SR1;
   input [4:0] SR2;
   input [31:0] Reg_In;
+  input [1:0] reg_select;
   output reg [31:0] ReadReg1;
   output reg [31:0] ReadReg2;
+  output reg [7:0] reg_out;
 
   reg [31:0] REG [0:31];
   integer i;
@@ -80,6 +82,14 @@ module REG(CLK, RegW, DR, SR1, SR2, Reg_In, ReadReg1, ReadReg2);
   initial begin
     ReadReg1 = 0;
     ReadReg2 = 0;
+  end
+  
+  always @(*) begin
+    case (reg_select)
+      0: reg_out = REG[2][15:0];
+      1: reg_out = REG[2][31:16];
+      2: reg_out = REG[3][15:0];
+      3: reg_out = REG[3][31:16];
   end
 
   always @(posedge CLK)
@@ -106,12 +116,13 @@ endmodule
 `define f_code instr[5:0]
 `define numshift instr[10:6]
 
-module MIPS (CLK, RST, CS, WE, ADDR, Mem_Bus);
+module MIPS (CLK, RST, reg_select, CS, WE, ADDR, Mem_Bus, reg_out);
   input CLK, RST;
+  input [1:0] reg_select;
   output reg CS, WE;
   output [6:0] ADDR;
   inout [31:0] Mem_Bus;
-
+  output [7:0] reg_out;
   //special instructions (opcode == 000000), values of F code (bits 5-0):
   parameter add = 6'b100000;
   parameter sub = 6'b100010;
@@ -177,7 +188,7 @@ module MIPS (CLK, RST, CS, WE, ADDR, Mem_Bus);
 
   //drive memory bus only during writes
   assign ADDR = (fetchDorI)? pc : alu_result_save[6:0]; //ADDR Mux
-  REG Register(CLK, regw, dr, `sr1, `sr2, reg_in, readreg1, readreg2);
+  REG Register(CLK, regw, dr, `sr1, `sr2, reg_in, reg_select, readreg1, readreg2, reg_out);
 
   initial begin
     op = and1; opsave = and1;
