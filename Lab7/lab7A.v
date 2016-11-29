@@ -178,8 +178,13 @@ module MIPS (CLK, RST, HALT, CS, WE, ADDR, Mem_Bus, reg1_out);
     npc = pc; op = jr; reg_or_imm = 0; alu_or_mem = 0; nstate = 3'd0;
     case (state)
       0: begin //fetch
-        npc = pc + 7'd1; CS = 1; nstate = 3'd1;
-        fetchDorI = 1;
+        if (HALT) begin
+          nstate = 3'd0;
+        end
+        else begin
+          npc = pc + 7'd1; CS = 1; nstate = 3'd1;
+          fetchDorI = 1;
+        end
       end
       1: begin //decode
         nstate = 3'd2; reg_or_imm = 0; alu_or_mem = 0;
