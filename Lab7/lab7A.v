@@ -30,9 +30,9 @@ module MIPS_Testbench ();
     expected[4] = 32'h0000000C;
     expected[5] = 32'h00000002;
     expected[6] = 32'h00000016;
-    expected[7] = 32'h00000006;
-    expected[8] = 32'h00000001;
-    expected[9] = 32'h00000120;
+    expected[7] = 32'h00000001;
+    expected[8] = 32'h00000120;
+    expected[9] = 32'h00000003;
     expected[10] = 32'h00412022;
     CLK = 0;
   end //initial
@@ -52,6 +52,8 @@ module MIPS_Testbench ();
       @(negedge CLK);
       if (Mem_Bus != expected[i])
         $display("Output mismatch: got %d, expect %d", Mem_Bus, expected[i]);
+      else
+        $display("#%d correct", i);
     end//for
 
     /* add your testing code here */
