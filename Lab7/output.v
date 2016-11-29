@@ -34,7 +34,9 @@ module sevenSeg(CLK, Seven0, Seven1, Seven2, Seven3, SevOut, Dig);
 		endcase
 	end
 
-	always @(posedge CLK) begin
+	sevenSegClock sevenClk(CLK, clk100Hz);
+	
+	always @(posedge clk100Hz) begin
 		State <= NextState;
 	end
 endmodule

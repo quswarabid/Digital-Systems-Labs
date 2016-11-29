@@ -1,17 +1,16 @@
-module topB(CLK, sw, btn, reg_out, SevenOut, Digit);
+module topB(CLK, RST, sw, btn, SevenOut, Digit);
   // Will need to be modified to add functionality
-  input CLK;
+  input CLK, RST;
   input [2:0] sw;
   input [1:0] btn;
-  output wire [7:0] reg_out;
   output wire [6:0] SevenOut;
 	output wire [3:0] Digit;
 
   wire CS, WE;
   wire [6:0] ADDR;
   wire [31:0] Mem_Bus;
+  wire [15:0] reg_out;
   wire [6:0] Seven0, Seven1, Seven2, Seven3;
-  wire [15:0] fourSeven;
 
   MIPS CPU(CLK, RST, btn, CS, WE, ADDR, Mem_Bus, reg_out);
   Memory MEM(CS, WE, CLK, ADDR, Mem_Bus);
@@ -19,9 +18,8 @@ module topB(CLK, sw, btn, reg_out, SevenOut, Digit);
   synchSP buttonL(clk, btn[1], btnL);
   synchSP buttonR(clk, btn[0], btnR);
 
-  sevenSegClock sevenClk(clk, clk100Hz);
-  fourBCDSeven bcdToSeven(fourSeven, Seven0, Seven1, Seven2, Seven3);
-  sevenSeg display(clk100Hz, Seven0, Seven1, Seven2, Seven3, SevenOut, Digit);
+  fourBCDSeven bcdToSeven(reg_out, Seven0, Seven1, Seven2, Seven3);
+  sevenSeg display(CLK, Seven0, Seven1, Seven2, Seven3, SevenOut, Digit);
 endmodule
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -74,7 +72,7 @@ module REG(CLK, RegW, DR, SR1, SR2, Reg_In, reg_select, ReadReg1, ReadReg2, reg_
   input [1:0] reg_select;
   output reg [31:0] ReadReg1;
   output reg [31:0] ReadReg2;
-  output reg [7:0] reg_out;
+  output reg [15:0] reg_out;
 
   reg [31:0] REG [0:31];
   integer i;
@@ -83,7 +81,7 @@ module REG(CLK, RegW, DR, SR1, SR2, Reg_In, reg_select, ReadReg1, ReadReg2, reg_
     ReadReg1 = 0;
     ReadReg2 = 0;
   end
-  
+
   always @(*) begin
     case (reg_select)
       0: reg_out = REG[2][15:0];
@@ -122,7 +120,7 @@ module MIPS (CLK, RST, reg_select, CS, WE, ADDR, Mem_Bus, reg_out);
   output reg CS, WE;
   output [6:0] ADDR;
   inout [31:0] Mem_Bus;
-  output [7:0] reg_out;
+  output [15:0] reg_out;
   //special instructions (opcode == 000000), values of F code (bits 5-0):
   parameter add = 6'b100000;
   parameter sub = 6'b100010;
