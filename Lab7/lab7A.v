@@ -8,10 +8,10 @@ module Complete_MIPS(CLK, RST, HALT, reg1_out);
   wire CS, WE;
   wire [6:0] ADDR;
   wire [31:0] Mem_Bus;
-  wire twoHz;
+  wire tenHz;
 
-  twoHertzClk slowclk(CLK, twoHz);
-  MIPS CPU(twoHz, RST, HALT, CS, WE, ADDR, Mem_Bus, reg1_out);
+  tenHertzClk slowclk(CLK, tenHz);
+  MIPS CPU(tenHz, RST, HALT, CS, WE, ADDR, Mem_Bus, reg1_out);
   Memory MEM(CS, WE, CLK, ADDR, Mem_Bus);
 
 endmodule
@@ -104,7 +104,7 @@ endmodule
 `define numshift instr[10:6]
 
 module MIPS (CLK, RST, HALT, CS, WE, ADDR, Mem_Bus, reg1_out);
-  input CLK, RST, HALT; 
+  input CLK, RST, HALT;
   output reg CS, WE;
   output [6:0] ADDR;
   inout [31:0] Mem_Bus;
@@ -238,14 +238,14 @@ module MIPS (CLK, RST, HALT, CS, WE, ADDR, Mem_Bus, reg1_out);
         end
       end
       4: begin
-        if (HALT) begin
-          nstate = 3'd4;
-        end
-        else begin
+        // if (HALT) begin
+        //   nstate = 3'd4;
+        // end
+        // else begin
           nstate = 3'd0;
           CS = 1;
           if (`opcode == lw) regw = 1;
-        end
+        // end
       end
     endcase
   end //always
@@ -255,6 +255,9 @@ module MIPS (CLK, RST, HALT, CS, WE, ADDR, Mem_Bus, reg1_out);
     if (RST) begin
       state <= 3'd0;
       pc <= 7'd0;
+    end
+    else if (HALT && (state == 3'd4)) begin
+      state <= 3'd4;
     end
     else begin
       state <= nstate;
@@ -273,22 +276,22 @@ module MIPS (CLK, RST, HALT, CS, WE, ADDR, Mem_Bus, reg1_out);
 
 endmodule
 
-module twoHertzClk(clk100Mhz, clk2Hz);
+module tenHertzClk(clk100Mhz, clk10hz);
   input clk100Mhz; //fast clock
-  output reg clk2Hz; //slow clock
+  output reg clk10hz; //slow clock
 
-  reg[24:0] counter;
+  reg[22:0] counter;
 
   initial begin
     counter = 0;
-    clk2Hz = 0;
+    clk10hz = 0;
   end
 
   always @ (posedge clk100Mhz)
   begin
-    if(counter == 25'd25000000) begin
+    if(counter == 23'd5000000) begin
       counter <= 1;
-      clk2Hz <= ~clk2Hz;
+      clk10hz <= ~clk10hz;
     end
     else begin
       counter <= counter + 1;
