@@ -1,64 +1,27 @@
-// You can use this skeleton testbench code, the textbook testbench code, or your own
-module MIPS_Testbench ();
-  reg CLK;
-  reg RST;
-  wire CS;
-  wire WE;
-  wire [31:0] Mem_Bus;
-  wire [6:0] Address;
-
-  initial
-  begin
-    CLK = 0;
-  end
-
-  MIPS CPU(CLK, RST, CS, WE, Address, Mem_Bus);
-  Memory MEM(CS, WE, CLK, Address, Mem_Bus);
-
-  always
-  begin
-    #5 CLK = !CLK;
-  end
-
-  always
-  begin
-    RST <= 1'b1; //reset the processor
-
-    //Notice that the memory is initialize in the memory module not here
-
-    @(posedge CLK);
-    // driving reset low here puts processor in normal operating mode
-    RST = 1'b0;
-
-    /* add your testing code here */
-    // you can add in a 'Halt' signal here as well to test Halt operation
-    // you will be verifying your program operation using the
-    // waveform viewer and/or self-checking operations
-
-    $display("TEST COMPLETE");
-    $stop;
-  end
-
-endmodule
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-module Complete_MIPS(CLK, RST, A_Out, D_Out);
+module topB(CLK, sw, btn, SevenOut, Digit);
   // Will need to be modified to add functionality
   input CLK;
-  input RST;
+  input [2:0] sw;
+  input [1:0] btn;
+
+  output wire [6:0] SevenOut;
+	output wire [3:0] Digit;
 
   wire CS, WE;
   wire [6:0] ADDR;
   wire [31:0] Mem_Bus;
+  wire [6:0] Seven0, Seven1, Seven2, Seven3;
+  wire [15:0] fourSeven;
 
   MIPS CPU(CLK, RST, CS, WE, ADDR, Mem_Bus);
   Memory MEM(CS, WE, CLK, ADDR, Mem_Bus);
 
+  synchSP buttonL(clk, btn[1], btnL);
+  synchSP buttonR(clk, btn[0], btnR);
+
+  sevenSegClock sevenClk(clk, clk100Hz);
+  fourBCDSeven bcdToSeven(fourSeven, Seven0, Seven1, Seven2, Seven3);
+  sevenSeg display(clk100Hz, Seven0, Seven1, Seven2, Seven3, SevenOut, Digit);
 endmodule
 
 ///////////////////////////////////////////////////////////////////////////////
