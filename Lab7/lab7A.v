@@ -85,9 +85,10 @@ module Complete_MIPS(CLK, RST, HALT, reg1_out);
   wire CS, WE;
   wire [6:0] ADDR;
   wire [31:0] Mem_Bus;
+  wire twoHz;
 
-
-  MIPS CPU(CLK, RST, HALT, CS, WE, ADDR, Mem_Bus, reg1_out);
+  twoHertzClk slowclk(CLK, twoHz);
+  MIPS CPU(twoHz, RST, HALT, CS, WE, ADDR, Mem_Bus, reg1_out);
   Memory MEM(CS, WE, CLK, ADDR, Mem_Bus);
 
 endmodule
