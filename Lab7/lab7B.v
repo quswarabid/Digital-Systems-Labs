@@ -1,4 +1,4 @@
-module topB(CLK, RST, sw, btn, SevenOut, Digit, reg1_out, tenHz);
+module topB(CLK, RST, sw, btn, SevenOut, Digit, reg1_out, pc);
   // Will need to be modified to add functionality
   input CLK, RST;
   input [2:0] sw;
@@ -6,7 +6,7 @@ module topB(CLK, RST, sw, btn, SevenOut, Digit, reg1_out, tenHz);
   output wire [6:0] SevenOut;
 	output wire [3:0] Digit;
   output [7:0] reg1_out;
-  output tenHz;
+  output [6:0] pc;
 
   wire CS, WE;
   wire [6:0] ADDR;
@@ -15,11 +15,12 @@ module topB(CLK, RST, sw, btn, SevenOut, Digit, reg1_out, tenHz);
   wire [6:0] Seven0, Seven1, Seven2, Seven3;
   wire [1:0] select;
   wire btnL, btnR;
+  wire slowclk ;
 
   assign select = {btnL, btnR};
 
-  tenHertzClk slowclk(CLK, tenHz);
-  MIPS CPU(tenHz, RST, select, sw, CS, WE, ADDR, Mem_Bus, reg_out);
+  oneHertzClk slowclk(CLK, slowclk);
+  MIPS CPU(slowclk, RST, select, sw, CS, WE, ADDR, Mem_Bus, reg_out, reg1_out, pc);
   Memory MEM(CS, WE, CLK, ADDR, Mem_Bus);
 
   synchSP buttonL(CLK, btn[1], btnL);
@@ -129,7 +130,7 @@ endmodule
 `define f_code instr[5:0]
 `define numshift instr[10:6]
 
-module MIPS (CLK, RST, reg_select, r1_lsb3, CS, WE, ADDR, Mem_Bus, reg_out, reg1_out);
+module MIPS (CLK, RST, reg_select, r1_lsb3, CS, WE, ADDR, Mem_Bus, reg_out, reg1_out, pc_out);
   input CLK, RST;
   input [1:0] reg_select;
   input [2:0] r1_lsb3;
@@ -138,6 +139,9 @@ module MIPS (CLK, RST, reg_select, r1_lsb3, CS, WE, ADDR, Mem_Bus, reg_out, reg1
   inout [31:0] Mem_Bus;
   output [15:0] reg_out;
   output [7:0] reg1_out;
+  output [6:0] pc_out;
+
+  assign pc_out = pc;
 
   //special instructions (opcode == 000000), values of F code (bits 5-0):
   parameter add = 6'b100000;
@@ -230,10 +234,7 @@ module MIPS (CLK, RST, reg_select, r1_lsb3, CS, WE, ADDR, Mem_Bus, reg_out, reg1
         nstate = 3'd2; reg_or_imm = 0; alu_or_mem = 0;
         if (format == J) begin //jump, and finish
           npc = instr[6:0];
-          if (`opcode == jal) begin
-            savedPC = pc;
-            nstate = 3'd3;
-          end
+          if (`opcode == jal) nstate = 3'd3;
           else nstate = 3'd0;
         end
         else if (format == R) //register instructions
@@ -336,6 +337,7 @@ module MIPS (CLK, RST, reg_select, r1_lsb3, CS, WE, ADDR, Mem_Bus, reg_out, reg1
       opsave <= op;
       reg_or_imm_save <= reg_or_imm;
       alu_or_mem_save <= alu_or_mem;
+      if (`opcode == jal) savedPC <= pc;
     end
     else if (state == 3'd2) alu_result_save <= alu_result;
 
@@ -359,6 +361,29 @@ module tenHertzClk(clk100Mhz, clk10hz);
     if(counter == 23'd5000000) begin
       counter <= 1;
       clk10hz <= ~clk10hz;
+    end
+    else begin
+      counter <= counter + 1;
+    end
+  end
+endmodule
+
+module oneHertzClk(clk100Mhz, clk1Hz);
+  input clk100Mhz; //fast clock
+  output reg clk1Hz; //slow clock
+
+  reg[25:0] counter;
+
+  initial begin
+    counter = 0;
+    clk1Hz = 0;
+  end
+
+  always @ (posedge clk100Mhz)
+  begin
+    if(counter == 26'd50000000) begin
+      counter <= 1;
+      clk1Hz <= ~clk1Hz;
     end
     else begin
       counter <= counter + 1;
