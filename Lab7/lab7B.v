@@ -12,6 +12,7 @@ module topB(CLK, RST, sw, btn, SevenOut, Digit);
   wire [15:0] reg_out;
   wire [6:0] Seven0, Seven1, Seven2, Seven3;
   wire [1:0] select;
+
   assign select = {btnL, btnR};
 
   tenHertzClk slowclk(CLK, tenHz);
@@ -218,8 +219,14 @@ module MIPS (CLK, RST, reg_select, r1_lsb3, CS, WE, ADDR, Mem_Bus, reg_out);
       1: begin //decode
         nstate = 3'd2; reg_or_imm = 0; alu_or_mem = 0;
         if (format == J) begin //jump, and finish
-          npc = instr[6:0];
-          nstate = 3'd0;
+          if (`opcode == jal) begin
+            nstate = 3'd2;
+            op = jal;
+          end
+          else begin
+            nstate = 3'd0;
+            npc = instr[6:0];
+          end
         end
         else if (format == R) //register instructions
           op = `f_code;
@@ -236,11 +243,10 @@ module MIPS (CLK, RST, reg_select, r1_lsb3, CS, WE, ADDR, Mem_Bus, reg_out);
           end
           else if (`opcode == andi) op = and1;
           else if (`opcode == ori) op = or1;
-		      else if (`opcode == jal) op = jal;//??????????
 		      else if (`opcode == lui) op = lui;
         end
       end
-      2: begin //execute //dont know how to do mult
+      2: begin //execute
         nstate = 3'd3;
         if (opsave == and1) alu_result = alu_in_A & alu_in_B;
         else if (opsave == or1) alu_result = alu_in_A | alu_in_B;
@@ -262,8 +268,8 @@ module MIPS (CLK, RST, reg_select, r1_lsb3, CS, WE, ADDR, Mem_Bus, reg_out);
           nstate = 3'd0;
         end
 		    else if (opsave == jal) begin
-    			npc = instr[7:0];
-    			alu_result = pc + 7'd1;
+    			alu_result = pc;
+          npc = instr[6:0];
     		end
     		else if (opsave == lui) alu_result = {instr[15:0] << 16 , 16'b0000000000000000};
     		else if (opsave == mfhi) alu_result = hi;
