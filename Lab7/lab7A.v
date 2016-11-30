@@ -243,14 +243,9 @@ module MIPS (CLK, RST, HALT, CS, WE, ADDR, Mem_Bus, reg1_out);
         end
       end
       4: begin
-        // if (HALT) begin
-        //   nstate = 3'd4;
-        // end
-        // else begin
           nstate = 3'd0;
           CS = 1;
           if (`opcode == lw) regw = 1;
-        // end
       end
     endcase
   end //always
@@ -260,9 +255,6 @@ module MIPS (CLK, RST, HALT, CS, WE, ADDR, Mem_Bus, reg1_out);
     if (RST) begin
       state <= 3'd0;
       pc <= 7'd0;
-    end
-    else if (HALT && (state == 3'd4)) begin
-      state <= 3'd4;
     end
     else begin
       state <= nstate;
