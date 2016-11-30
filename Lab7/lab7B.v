@@ -11,8 +11,11 @@ module topB(CLK, RST, sw, btn, SevenOut, Digit);
   wire [31:0] Mem_Bus;
   wire [15:0] reg_out;
   wire [6:0] Seven0, Seven1, Seven2, Seven3;
+  wire [1:0] select;
+  assign select = {btnL, btnR};
 
-  MIPS CPU(CLK, RST, btn, sw, CS, WE, ADDR, Mem_Bus, reg_out);
+  tenHertzClk slowclk(CLK, tenHz);
+  MIPS CPU(tenHz, RST, select, sw, CS, WE, ADDR, Mem_Bus, reg_out);
   Memory MEM(CS, WE, CLK, ADDR, Mem_Bus);
 
   synchSP buttonL(CLK, btn[1], btnL);
@@ -94,7 +97,7 @@ module REG(CLK, RegW, DR, SR1, SR2, Reg_In, reg_select, r1_lsb3, ReadReg1, ReadR
 
   always @(posedge CLK)
   begin
-    REG[1][2:0] = r1_lsb3;
+    REG[1][2:0] <= r1_lsb3;
 
     if(RegW == 1'b1)
       REG[DR] <= Reg_In[31:0];
@@ -327,4 +330,27 @@ module MIPS (CLK, RST, reg_select, r1_lsb3, CS, WE, ADDR, Mem_Bus, reg_out);
 
   end //always
 
+endmodule
+
+module tenHertzClk(clk100Mhz, clk10hz);
+  input clk100Mhz; //fast clock
+  output reg clk10hz; //slow clock
+
+  reg[22:0] counter;
+
+  initial begin
+    counter = 0;
+    clk10hz = 0;
+  end
+
+  always @ (posedge clk100Mhz)
+  begin
+    if(counter == 23'd5000000) begin
+      counter <= 1;
+      clk10hz <= ~clk10hz;
+    end
+    else begin
+      counter <= counter + 1;
+    end
+  end
 endmodule
