@@ -1,11 +1,11 @@
-module topB(CLK, RST, sw, btn, SevenOut, Digit, reg1_out, pc);
+module topB(CLK, RST, sw, btn, SevenOut, Digit, reg1_out, pc, btnL, btnR);
   // Will need to be modified to add functionality
   input CLK, RST;
   input [2:0] sw;
   input [1:0] btn;
   output wire [6:0] SevenOut;
 	output wire [3:0] Digit;
-  output [7:0] reg1_out;
+  output [2:0] reg1_out;
   output [6:0] pc;
 
   wire CS, WE;
@@ -14,17 +14,18 @@ module topB(CLK, RST, sw, btn, SevenOut, Digit, reg1_out, pc);
   wire [15:0] reg_out;
   wire [6:0] Seven0, Seven1, Seven2, Seven3;
   wire [1:0] select;
-  wire btnL, btnR;
-  wire slowclk ;
+  output btnL, btnR;
+  wire slowclk, dbclk;
 
   assign select = {btnL, btnR};
 
-  oneHertzClk slowclk(CLK, slowclk);
+  oneHertzClk sloclk(CLK, slowclk);
   MIPS CPU(slowclk, RST, select, sw, CS, WE, ADDR, Mem_Bus, reg_out, reg1_out, pc);
   Memory MEM(CS, WE, CLK, ADDR, Mem_Bus);
 
-  synchSP buttonL(CLK, btn[1], btnL);
-  synchSP buttonR(CLK, btn[0], btnR);
+  debounce_divider dbdiv(CLK, db_clk);
+  debouncer buttonL(db_clk, btn[1], btnL);
+  debouncer buttonR(db_clk, btn[0], btnR);
 
   fourBCDSeven bcdToSeven(reg_out, Seven0, Seven1, Seven2, Seven3);
   sevenSeg display(CLK, Seven0, Seven1, Seven2, Seven3, SevenOut, Digit);
@@ -81,8 +82,8 @@ module REG(CLK, RegW, DR, SR1, SR2, Reg_In, reg_select, r1_lsb3, ReadReg1, ReadR
   input [2:0] r1_lsb3;
   output reg [31:0] ReadReg1;
   output reg [31:0] ReadReg2;
-  output reg [15:0] reg_out;
-  output [7:0] reg1_out;
+  output [15:0] reg_out;
+  output [2:0] reg1_out;
 
   reg [31:0] REG [0:31];
   integer i;
@@ -94,16 +95,10 @@ module REG(CLK, RegW, DR, SR1, SR2, Reg_In, reg_select, r1_lsb3, ReadReg1, ReadR
       REG[i] = 32'd0;
   end
 
-  assign reg1_out = REG[1][7:0];
+  assign reg1_out = REG[1][2:0];
 
-  always @(*) begin
-    case (reg_select)
-      0: reg_out = REG[2][15:0];
-      1: reg_out = REG[2][31:16];
-      2: reg_out = REG[3][15:0];
-      3: reg_out = REG[3][31:16];
-    endcase
-  end
+  assign reg_out = (reg_select[1]) ? ((reg_select[0]) ? REG[3][31:16] : REG[3][15:0])
+                                   : ((reg_select[0]) ? REG[2][31:16] : REG[2][15:0]);
 
   always @(posedge CLK)
   begin
@@ -138,7 +133,7 @@ module MIPS (CLK, RST, reg_select, r1_lsb3, CS, WE, ADDR, Mem_Bus, reg_out, reg1
   output [6:0] ADDR;
   inout [31:0] Mem_Bus;
   output [15:0] reg_out;
-  output [7:0] reg1_out;
+  output [2:0] reg1_out;
   output [6:0] pc_out;
 
   assign pc_out = pc;
