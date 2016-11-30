@@ -1,10 +1,12 @@
-module topB(CLK, RST, sw, btn, SevenOut, Digit);
+module topB(CLK, RST, sw, btn, SevenOut, Digit, reg1_out, tenHz);
   // Will need to be modified to add functionality
   input CLK, RST;
   input [2:0] sw;
   input [1:0] btn;
   output wire [6:0] SevenOut;
 	output wire [3:0] Digit;
+  output [7:0] reg1_out;
+  output tenHz;
 
   wire CS, WE;
   wire [6:0] ADDR;
@@ -12,6 +14,7 @@ module topB(CLK, RST, sw, btn, SevenOut, Digit);
   wire [15:0] reg_out;
   wire [6:0] Seven0, Seven1, Seven2, Seven3;
   wire [1:0] select;
+  wire btnL, btnR;
 
   assign select = {btnL, btnR};
 
@@ -66,7 +69,7 @@ endmodule
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-module REG(CLK, RegW, DR, SR1, SR2, Reg_In, reg_select, r1_lsb3, ReadReg1, ReadReg2, reg_out);
+module REG(CLK, RegW, DR, SR1, SR2, Reg_In, reg_select, r1_lsb3, ReadReg1, ReadReg2, reg_out, reg1_out);
   input CLK;
   input RegW;
   input [4:0] DR;
@@ -78,6 +81,7 @@ module REG(CLK, RegW, DR, SR1, SR2, Reg_In, reg_select, r1_lsb3, ReadReg1, ReadR
   output reg [31:0] ReadReg1;
   output reg [31:0] ReadReg2;
   output reg [15:0] reg_out;
+  output [7:0] reg1_out;
 
   reg [31:0] REG [0:31];
   integer i;
@@ -85,7 +89,11 @@ module REG(CLK, RegW, DR, SR1, SR2, Reg_In, reg_select, r1_lsb3, ReadReg1, ReadR
   initial begin
     ReadReg1 = 0;
     ReadReg2 = 0;
+    for (i = 0; i < 32; i = i + 1)
+      REG[i] = 32'd0;
   end
+
+  assign reg1_out = REG[1][7:0];
 
   always @(*) begin
     case (reg_select)
@@ -121,7 +129,7 @@ endmodule
 `define f_code instr[5:0]
 `define numshift instr[10:6]
 
-module MIPS (CLK, RST, reg_select, r1_lsb3, CS, WE, ADDR, Mem_Bus, reg_out);
+module MIPS (CLK, RST, reg_select, r1_lsb3, CS, WE, ADDR, Mem_Bus, reg_out, reg1_out);
   input CLK, RST;
   input [1:0] reg_select;
   input [2:0] r1_lsb3;
@@ -129,6 +137,8 @@ module MIPS (CLK, RST, reg_select, r1_lsb3, CS, WE, ADDR, Mem_Bus, reg_out);
   output [6:0] ADDR;
   inout [31:0] Mem_Bus;
   output [15:0] reg_out;
+  output [7:0] reg1_out;
+
   //special instructions (opcode == 000000), values of F code (bits 5-0):
   parameter add = 6'b100000;
   parameter sub = 6'b100010;
@@ -193,7 +203,7 @@ module MIPS (CLK, RST, reg_select, r1_lsb3, CS, WE, ADDR, Mem_Bus, reg_out);
 
   //drive memory bus only during writes
   assign ADDR = (fetchDorI)? pc : alu_result_save[6:0]; //ADDR Mux
-  REG Register(CLK, regw, dr, `sr1, `sr2, reg_in, reg_select, r1_lsb3, readreg1, readreg2, reg_out);
+  REG Register(CLK, regw, dr, `sr1, `sr2, reg_in, reg_select, r1_lsb3, readreg1, readreg2, reg_out, reg1_out);
 
   initial begin
     op = and1; opsave = and1;
