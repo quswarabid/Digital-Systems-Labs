@@ -265,21 +265,21 @@ module MIPS (CLK, RST, reg_select, r1_lsb3, CS, WE, ADDR, Mem_Bus, reg_out, reg1
         else if (opsave == mfhi) alu_result = hi;
         else if (opsave == mflo) alu_result = lo;
         else if (opsave == add8) begin
-          alu_result[31:24] <= alu_in_A[31:24] + alu_in_B[31:24];
-          alu_result[23:16] <= alu_in_A[23:16] + alu_in_B[23:16];
-          alu_result[15:8] <= alu_in_A[15:8] + alu_in_B[15:8];
-          alu_result[7:0] <= alu_in_A[7:0] + alu_in_B[7:0];
+          alu_result[31:24] = alu_in_A[31:24] + alu_in_B[31:24];
+          alu_result[23:16] = alu_in_A[23:16] + alu_in_B[23:16];
+          alu_result[15:8] = alu_in_A[15:8] + alu_in_B[15:8];
+          alu_result[7:0] = alu_in_A[7:0] + alu_in_B[7:0];
         end
         else if (opsave == rbit) begin
           for (i = 0; i < 32; i = i + 1) begin
-            alu_result[(31-i)] <= alu_in_B[i];
+            alu_result[(31-i)] = alu_in_B[i];
           end
         end
         else if (opsave == rev) begin
-          alu_result[31:24] <= alu_in_B[7:0];
-          alu_result[23:16] <= alu_in_B[15:8];
-          alu_result[15:8] <= alu_in_B[23:16];
-          alu_result[7:0] <= alu_in_B[31:24];
+          alu_result[31:24] = alu_in_B[7:0];
+          alu_result[23:16] = alu_in_B[15:8];
+          alu_result[15:8] = alu_in_B[23:16];
+          alu_result[7:0] = alu_in_B[31:24];
         end
         else if (opsave == sadd) alu_result = ((alu_in_A + alu_in_B) > 32'hffffffff) ? 32'hffffffff : (alu_in_A + alu_in_B);
         else if (opsave == ssub) alu_result = ((alu_in_A - alu_in_B) < 32'd0) ? 32'd0 : (alu_in_A - alu_in_B);
