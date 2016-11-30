@@ -1,9 +1,12 @@
-module sevenSeg(CLK, Seven0, Seven1, Seven2, Seven3, SevOut, Dig);
+module sevenSeg(CLK, D, SevOut, Dig);
 	input CLK;
-	input [6:0] Seven0, Seven1, Seven2, Seven3;
+	input [15:0] D;
 	output reg [6:0] SevOut;
 	output reg [3:0] Dig;
 	reg [1:0] State, NextState;
+
+	wire [6:0] Seven0, Seven1, Seven2, Seven3;
+	fourBCDSeven bcdToSeven(D, Seven0, Seven1, Seven2, Seven3);
 
 	initial begin
 		State <= 0;

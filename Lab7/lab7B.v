@@ -27,8 +27,7 @@ module topB(CLK, RST, sw, btn, SevenOut, Digit, reg1_out, pc, btnL, btnR);
   debouncer buttonL(db_clk, btn[1], btnL);
   debouncer buttonR(db_clk, btn[0], btnR);
 
-  fourBCDSeven bcdToSeven(reg_out, Seven0, Seven1, Seven2, Seven3);
-  sevenSeg display(CLK, Seven0, Seven1, Seven2, Seven3, SevenOut, Digit);
+  sevenSeg display(CLK, reg_out, SevenOut, Digit);
 endmodule
 
 ///////////////////////////////////////////////////////////////////////////////
