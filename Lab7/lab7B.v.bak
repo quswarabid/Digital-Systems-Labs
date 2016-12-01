@@ -134,6 +134,8 @@ module MIPS (CLK, RST, reg_select, r1_lsb3, CS, WE, ADDR, Mem_Bus, reg_out, reg1
   output [2:0] reg1_out;
   output [6:0] pc_out;
 
+  assign pc_out = pc;
+
   //special instructions (opcode == 000000), values of F code (bits 5-0):
   parameter add = 6'b100000;
   parameter sub = 6'b100010;
@@ -187,7 +189,6 @@ module MIPS (CLK, RST, reg_select, r1_lsb3, CS, WE, ADDR, Mem_Bus, reg_out, reg1
   integer i;
   assign hi = hilo[63:32];
   assign lo = hilo[31:0];
-  assign pc_out = pc;
 
   //combinational
   assign imm_ext = (instr[15] == 1)? {16'hFFFF, instr[15:0]} : {16'h0000, instr[15:0]};//Sign extend immediate field
