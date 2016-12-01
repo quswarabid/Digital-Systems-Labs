@@ -1,5 +1,4 @@
 module topB(CLK, RST, sw, btn, SevenOut, Digit, reg1_out, pc, btnL, btnR);
-  // Will need to be modified to add functionality
   input CLK, RST;
   input [2:0] sw;
   input [1:0] btn;
@@ -19,7 +18,7 @@ module topB(CLK, RST, sw, btn, SevenOut, Digit, reg1_out, pc, btnL, btnR);
 
   assign select = {btnL, btnR};
 
-  oneHertzClk sloclk(CLK, slowclk);
+  tenHertzClk sloclk(CLK, slowclk);
   MIPS CPU(slowclk, RST, select, sw, CS, WE, ADDR, Mem_Bus, reg_out, reg1_out, pc);
   Memory MEM(CS, WE, CLK, ADDR, Mem_Bus);
 
@@ -297,8 +296,8 @@ module MIPS (CLK, RST, reg_select, r1_lsb3, CS, WE, ADDR, Mem_Bus, reg_out, reg1
       end
       3: begin //prepare to write to mem
         nstate = 3'd0;
-        if (((format == R)&&(`f_code != mult))||(`opcode == addi)||(`opcode == andi)||(`opcode == ori)
-            ||(`opcode == jal)||(`opcode == lui)) regw = 1;
+        if (((format == R)&&(`f_code != mult)) || (`opcode == addi) || (`opcode == andi) || (`opcode == ori)
+            || (`opcode == jal) || (`opcode == lui)) regw = 1;
         else if (`opcode == sw) begin
           CS = 1;
           WE = 1;
@@ -357,29 +356,6 @@ module tenHertzClk(clk100Mhz, clk10hz);
     if(counter == 23'd5000000) begin
       counter <= 1;
       clk10hz <= ~clk10hz;
-    end
-    else begin
-      counter <= counter + 1;
-    end
-  end
-endmodule
-
-module oneHertzClk(clk100Mhz, clk1Hz);
-  input clk100Mhz; //fast clock
-  output reg clk1Hz; //slow clock
-
-  reg[25:0] counter;
-
-  initial begin
-    counter = 0;
-    clk1Hz = 0;
-  end
-
-  always @ (posedge clk100Mhz)
-  begin
-    if(counter == 26'd50000000) begin
-      counter <= 1;
-      clk1Hz <= ~clk1Hz;
     end
     else begin
       counter <= counter + 1;
