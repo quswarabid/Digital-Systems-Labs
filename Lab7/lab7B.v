@@ -180,7 +180,7 @@ module MIPS (CLK, RST, reg_select, r1_lsb3, CS, WE, ADDR, Mem_Bus, reg_out);
 
   //combinational
   assign imm_ext = (instr[15] == 1)? {16'hFFFF, instr[15:0]} : {16'h0000, instr[15:0]};//Sign extend immediate field
-  assign dr = (`opcode == jal) ? 5'd31 : (((`opcode == rbit) || (`opcode == rev))? instr[25:21]:((format == R)? instr[15:11] : instr[20:16])); //Destination Register MUX (MUX1)
+  assign dr = (`opcode == jal) ? 5'd31 : (((`f_code == rbit) || (`f_code == rev))? instr[25:21]:((format == R)? instr[15:11] : instr[20:16])); //Destination Register MUX (MUX1)
   assign alu_in_A = readreg1;
   assign alu_in_B = (reg_or_imm_save)? imm_ext : readreg2; //ALU MUX (MUX2)
   assign reg_in = (`opcode == jal) ? savedPC : ((alu_or_mem_save)? Mem_Bus : alu_result_save); //Data MUX
@@ -206,7 +206,6 @@ module MIPS (CLK, RST, reg_select, r1_lsb3, CS, WE, ADDR, Mem_Bus, reg_out);
   begin
     fetchDorI = 0; CS = 0; WE = 0; regw = 0; writing = 0; alu_result = 32'd0;
     npc = pc; op = jr; reg_or_imm = 0; alu_or_mem = 0; nstate = 3'd0;
-    hilo = 64'd0;
     case (state)
       0: begin //fetch
         npc = pc + 7'd1; CS = 1; nstate = 3'd1;
